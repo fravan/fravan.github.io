@@ -1,0 +1,25 @@
+---
+import Layout from "../layouts/Layout.astro";
+import Order from "../components/Order.astro";
+import ProductUnit from "../components/ProductUnit.astro";
+
+const products = [
+  { name: "Andouillette", price: 800 },
+  { name: "Saucisses", price: 650 },
+];
+---
+
+<Layout title="La Caisse Enregistreuse">
+  <Order>
+    {products.map((p) => <ProductUnit name={p.name} price={p.price} />)}
+
+    <br />
+    <hr class="h-2 w-full bg-red-500" />
+
+    <div x-data={`{ products: [{ name: 'And', price: 850 }] }`}>
+      <template x-for="p in products">
+        <ProductUnit :name="p.name" :price="p.price" name="l" price={0} />
+      </template>
+    </div>
+  </Order>
+</Layout>
