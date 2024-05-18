@@ -33,6 +33,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"lucide-svelte": "^0.378.0"
+		"lucide-svelte": "^0.378.0",
+		"qrcode": "^1.5.3"
 	}
 }

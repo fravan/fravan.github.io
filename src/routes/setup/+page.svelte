@@ -1,4 +1,5 @@
 <script>
+	import CashRegisterShareLink from '$lib/components/CashRegisterShareLink.svelte';
 	import ProductForm from '$lib/components/ProductForm.svelte';
 	import ProductHeaderRow from '$lib/components/ProductHeaderRow.svelte';
 	import ProductRow from '$lib/components/ProductRow.svelte';
@@ -27,4 +28,6 @@
 			{/each}
 		</tbody>
 	</table>
+
+	<CashRegisterShareLink encodedProducts={store.encodedProducts} />
 </section>
