@@ -6,13 +6,10 @@
 
 	$effect(() => {
 		const canvas = document.getElementById('cash-share-link');
-		QRCode.toCanvas(
-			canvas,
-			`http://192.168.1.10:5173/setup?c=${encodedProducts}`,
-			function (error) {
-				console.log('After QR code stuff, error is :', error);
-			}
-		);
+		const url = import.meta.env.PROD ? window.location.href : 'http://192.168.1.10:5173/setup';
+		QRCode.toCanvas(canvas, `${url}?c=${encodedProducts}`, function (error) {
+			console.log('After QR code stuff, error is :', error);
+		});
 	});
 </script>
 
