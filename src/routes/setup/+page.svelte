@@ -1,6 +1,6 @@
 <script>
+	import Button from '$lib/components/Button.svelte';
 	import CashRegisterShareLink from '$lib/components/CashRegisterShareLink.svelte';
-	import ProductForm from '$lib/components/ProductForm.svelte';
 	import ProductHeaderRow from '$lib/components/ProductHeaderRow.svelte';
 	import ProductRow from '$lib/components/ProductRow.svelte';
 	import { createProductsStore } from '$lib/stores/products.svelte.js';
@@ -14,20 +14,23 @@
 </svelte:head>
 
 <section>
-	<h2>Configuration</h2>
+	<div class="flex justify-between gap-4 items-center">
+		<h2 class="text-xl font-bold">Configuration</h2>
+	</div>
 
-	<ProductForm onProductSubmitted={store.addProduct} />
-
-	<button type="button" onclick={store.clear}>Supprimer tous les produits</button>
-
-	<table>
-		<thead><ProductHeaderRow /></thead>
+	<table class="w-full">
+		<thead><ProductHeaderRow onAddClick={store.addNewProduct} /></thead>
 		<tbody>
 			{#each store.products as p}
-				<ProductRow product={p} onDelete={store.removeProduct} />
+				<ProductRow bind:product={p} onDelete={store.removeProduct} />
 			{/each}
 		</tbody>
 	</table>
 
+	<div class="my-8">
+		<Button variant="primary" onclick={store.clear}>Supprimer tous les produits</Button>
+	</div>
+	<!--
 	<CashRegisterShareLink encodedProducts={store.encodedProducts} />
+  -->
 </section>

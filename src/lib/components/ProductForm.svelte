@@ -1,4 +1,5 @@
 <script>
+	import Input from '$lib/components/Input.svelte';
 	/**
 	 * @type {{
 	 *  onProductSubmitted: (p: Product) => void,
@@ -23,16 +24,16 @@
 <form onsubmit={handleSubmit} class="flex flex-col gap-2 items-start">
 	<div class="flex items-center gap-2">
 		<label for="name">Nom: </label>
-		<input type="text" bind:value={name} id="name" />
+		<Input type="text" bind:value={name} id="name" />
 	</div>
 
 	<div class="flex items-center gap-2">
 		<label for="price">Prix: </label>
-		<input type="number" bind:value={price} id="price" step="0.01" />
+		<Input type="number" bind:value={price} id="price" step="0.01" />
 	</div>
 
 	<div class="flex items-center gap-2">
-		<input type="checkbox" bind:checked={kilo} id="kilo" />
+		<input type="checkbox" bind:checked={kilo} id="kilo" class="accent-accent-500" />
 		<label for="kilo">Prix au kilo</label>
 	</div>
 

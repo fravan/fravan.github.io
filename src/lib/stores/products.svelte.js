@@ -28,6 +28,9 @@ export function createProductsStore() {
 		addProduct(product) {
 			products.push(product);
 		},
+		addNewProduct() {
+			products.unshift({ name: '', price: 0, kilo: false });
+		},
 		/**
 		 * @param {Product} product
 		 */

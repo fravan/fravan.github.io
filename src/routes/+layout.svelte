@@ -3,7 +3,7 @@
 	import '../app.css';
 </script>
 
-<div class="max-w-lg mx-auto">
+<div class="max-w-screen-lg mx-auto">
 	<Header />
 
 	<main>
