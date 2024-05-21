@@ -6,7 +6,7 @@
 <div class="max-w-screen-lg mx-auto">
 	<Header />
 
-	<main>
+	<main class="px-2">
 		<slot />
 	</main>
 </div>

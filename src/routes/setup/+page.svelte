@@ -6,6 +6,7 @@
 	import { createProductsStore } from '$lib/stores/products.svelte.js';
 
 	let store = createProductsStore();
+	let showingLink = $state(false);
 </script>
 
 <svelte:head>
@@ -14,23 +15,27 @@
 </svelte:head>
 
 <section>
-	<div class="flex justify-between gap-4 items-center">
-		<h2 class="text-xl font-bold">Configuration</h2>
-	</div>
+	{#if showingLink}
+		<div class="flex flex-col gap-2 items-center">
+			<p class="text-center">Partagez la caisse avec le QR code suivant</p>
+			<CashRegisterShareLink encodedProducts={store.encodedProducts} />
+			<Button variant="primary" onclick={() => (showingLink = false)}
+				>Revenir à la configuration</Button
+			>
+		</div>
+	{:else}
+		<table class="w-full">
+			<thead><ProductHeaderRow onAddClick={store.addNewProduct} /></thead>
+			<tbody>
+				{#each store.products as _, i}
+					<ProductRow bind:product={store.products[i]} onDelete={store.removeProduct} />
+				{/each}
+			</tbody>
+		</table>
 
-	<table class="w-full">
-		<thead><ProductHeaderRow onAddClick={store.addNewProduct} /></thead>
-		<tbody>
-			{#each store.products as p}
-				<ProductRow bind:product={p} onDelete={store.removeProduct} />
-			{/each}
-		</tbody>
-	</table>
-
-	<div class="my-8">
-		<Button variant="primary" onclick={store.clear}>Supprimer tous les produits</Button>
-	</div>
-	<!--
-	<CashRegisterShareLink encodedProducts={store.encodedProducts} />
-  -->
+		<div class="my-8 flex flex-col md:flex-row gap-2">
+			<Button variant="outline" onclick={store.clear}>Supprimer tous les produits</Button>
+			<Button variant="primary" onclick={() => (showingLink = true)}>Partager la caisse</Button>
+		</div>
+	{/if}
 </section>
