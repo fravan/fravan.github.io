@@ -13,6 +13,11 @@ declare global {
 		price: number;
 		kilo: boolean;
 	}
+	interface ProductOrder {
+		quantity: number;
+		price: number;
+	}
+	type Order = Record<string, ProductOrder>;
 }
 
 export {};

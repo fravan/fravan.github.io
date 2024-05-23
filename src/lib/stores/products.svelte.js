@@ -1,4 +1,4 @@
-const productsStoreKey = 'lce-products:v1';
+const productsStoreKey = 'lce:products:v1';
 
 export function createProductsStore() {
 	const urlParams = new URLSearchParams(window.location.search);

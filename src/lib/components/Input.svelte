@@ -5,6 +5,7 @@
 <input
 	{...props}
 	bind:this={ref}
+	onfocus={(e) => e.target.select()}
 	class={`rounded focus-visible:outline-none focus-visible:ring focus-visible:ring-accent-500 border border-slate-200 hover:border-slate-300 focus-visible:border-slate-500 px-2 py-0.5 ${className}`}
 	bind:value
 />
