@@ -14,7 +14,7 @@
 		{
 			'bg-accent-500 text-white enabled:active:bg-accent-700 enabled:hover:bg-accent-600 disabled:bg-accent-300':
 				variant === 'primary',
-			'border border-accent-500 text-accent-950 enabled:hover:border-accent-700 enabled:hover:bg-accent-50 enabled:active:bg-accent-100 enabled:active:border-accent-500':
+			'border border-accent-500 text-accent-950 enabled:hover:border-accent-700 enabled:hover:bg-accent-50 enabled:active:bg-accent-100 enabled:active:border-accent-500 disabled:text-accent-300 disabled:border-accent-300':
 				variant === 'outline'
 		}
 	)}

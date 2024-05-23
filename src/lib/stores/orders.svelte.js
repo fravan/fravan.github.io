@@ -20,7 +20,15 @@ export function createOrdersStore() {
 		 * @param {Order} order
 		 */
 		saveOrder(order) {
-			orders.push(order);
+			const filteredOrder = Object.entries(order).reduce(
+				(/** @type {Order} */ acc, [key, value]) => {
+					if (value.quantity === 0) return acc;
+					acc[key] = value;
+					return acc;
+				},
+				{}
+			);
+			orders.push(filteredOrder);
 		}
 	};
 }
