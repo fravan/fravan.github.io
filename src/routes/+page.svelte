@@ -42,6 +42,10 @@
 				product={p}
 				quantity={currentOrder[p.name].quantity}
 				onQuantityChange={(q) => {
+					if (isNaN(q) || typeof q !== 'number') {
+						console.warn(`Received some strange quantity : ${q}`);
+						return;
+					}
 					currentOrder[p.name].quantity = q;
 				}}
 			/>

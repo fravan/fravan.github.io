@@ -2,8 +2,17 @@
  * @param {(event: Event) => void} cb
  */
 export function withPrevent(cb) {
-	return (/** @type {Event} */ e) => {
+	return function (/** @type {Event} */ e) {
 		e.preventDefault();
-		cb(e);
+		cb.call(this, e);
+	};
+}
+
+/**
+ * @param {(event: KeyboardEvent) => void} cb
+ */
+export function withEnter(cb) {
+	return function (/** @type {KeyboardEvent} */ e) {
+		if (e.key === 'Enter') cb.call(this, e);
 	};
 }

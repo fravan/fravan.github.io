@@ -1,5 +1,7 @@
 <script>
-	import { withPrevent } from '$lib/utils/eventHandlers';
+	import { tick } from 'svelte';
+	import Input from '$lib/components/Input.svelte';
+	import { withPrevent, withEnter } from '$lib/utils/eventHandlers';
 
 	/** @type {{ product: Product, quantity: number, onQuantityChange: (q: number) => void  }} */
 	let { product, quantity, onQuantityChange } = $props();
@@ -7,9 +9,16 @@
 	let clickingInterval = $state(undefined);
 	let startedAt = $state(0);
 	let clickingProgress = $state(0);
+	/** @type HTMLInputElement */
+	let inputRef;
+	// Used for products that have a "per kilo" price
+	let prompting = $state(false);
 
 	function startClick() {
 		if (clickingInterval != null) return;
+		if (prompting) return;
+
+		console.log('startClick');
 
 		startedAt = Date.now();
 		clickingProgress = 0;
@@ -19,19 +28,32 @@
 		}, 50);
 	}
 
-	function endClick() {
+	async function endClick() {
 		if (clickingInterval == null) return;
+
+		console.log('endClick');
 		if (clickingProgress > 1) {
 			onQuantityChange(0);
+		} else if (product.kilo) {
+			prompting = true;
+			await tick();
+			inputRef.focus();
 		} else {
 			onQuantityChange(quantity + 1);
 		}
 		abortClick();
 	}
+
 	function abortClick() {
+		console.log('abortClick');
 		clearInterval(clickingInterval);
 		clickingInterval = undefined;
 		clickingProgress = 0;
+	}
+
+	function endPrompt() {
+		if (!prompting) return;
+		prompting = false;
 	}
 </script>
 
@@ -41,7 +63,7 @@
 	class:border-accent-600={quantity > 0}
 	class:border-red-600={quantity < 0}
 	style="grid-template-columns: max-content 1fr;"
-	ontouchstart={withPrevent(startClick)}
+	ontouchstart={startClick}
 	ontouchend={endClick}
 	ontouchcancel={abortClick}
 	onmousedown={startClick}
@@ -53,7 +75,7 @@
 		style="width: calc({clickingProgress}*100%)"
 	></div>
 	<div
-		class="px-2 py-1 items-center justify-center text-white row-start-1 col-start-1"
+		class="px-2 py-1 h-full items-center justify-center text-white row-start-1 col-start-1"
 		class:bg-accent-600={quantity > 0}
 		class:bg-red-600={quantity < 0}
 		class:hidden={quantity === 0}
@@ -70,4 +92,20 @@
 			{product.price.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
 		</p>
 	</div>
+
+	{#if product.kilo}
+		<div class="row-start-1 col-start-1 col-span-full px-2 py-1" class:hidden={!prompting}>
+			<Input
+				type="number"
+				step="0.001"
+				class="w-full h-full"
+				value={quantity}
+				bind:ref={inputRef}
+				onchange={(/** @type Event & { target: HTMLInputElement } */ e) =>
+					onQuantityChange(Number(e.target.value))}
+				onblur={endPrompt}
+				onkeyup={withEnter(endPrompt)}
+			/>
+		</div>
+	{/if}
 </button>
