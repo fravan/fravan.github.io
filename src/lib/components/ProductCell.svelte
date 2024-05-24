@@ -1,54 +1,54 @@
 <script>
 	import { tick } from 'svelte';
 	import Input from '$lib/components/Input.svelte';
-	import { withPrevent, withEnter } from '$lib/utils/eventHandlers';
+	import { withEnter } from '$lib/utils/eventHandlers';
+	import ProductCellLongTouchIndicator from './ProductCellLongTouchIndicator.svelte';
 
 	/** @type {{ product: Product, quantity: number, onQuantityChange: (q: number) => void  }} */
 	let { product, quantity, onQuantityChange } = $props();
-	/** @type {number | undefined} */
-	let clickingInterval = $state(undefined);
-	let startedAt = $state(0);
-	let clickingProgress = $state(0);
+	let touchStartTime = $state(0);
+	let touchEndTime = $state(0);
 	/** @type HTMLInputElement */
 	let inputRef;
 	// Used for products that have a "per kilo" price
 	let prompting = $state(false);
 
+	const longPressTimeout = 300;
+
 	function startClick() {
-		if (clickingInterval != null) return;
-		if (prompting) return;
-
-		console.log('startClick');
-
-		startedAt = Date.now();
-		clickingProgress = 0;
-		clickingInterval = setInterval(() => {
-			clickingProgress = (Date.now() - startedAt) / 500;
-			if (clickingProgress > 1) endClick();
-		}, 50);
+		touchStartTime = Date.now();
 	}
 
 	async function endClick() {
-		if (clickingInterval == null) return;
+		if (touchStartTime === 0) return;
+		touchEndTime = Date.now();
+		const touchDuration = touchEndTime - touchStartTime;
 
-		console.log('endClick');
-		if (clickingProgress > 1) {
+		if (touchDuration < longPressTimeout) {
+			await handleMouseClick();
+		} else {
 			onQuantityChange(0);
-		} else if (product.kilo) {
+		}
+	}
+
+	function abortClick() {
+		touchStartTime = 0;
+		touchEndTime = 0;
+	}
+
+	async function handleMouseClick() {
+		// Handler is fired after touch events, so we can reset and ignore here
+		if (touchStartTime !== 0) {
+			abortClick();
+			return;
+		}
+		if (product.kilo) {
 			prompting = true;
 			await tick();
 			inputRef.focus();
 		} else {
 			onQuantityChange(quantity + 1);
 		}
-		abortClick();
-	}
-
-	function abortClick() {
-		console.log('abortClick');
-		clearInterval(clickingInterval);
-		clickingInterval = undefined;
-		clickingProgress = 0;
 	}
 
 	function endPrompt() {
@@ -66,14 +66,18 @@
 	ontouchstart={startClick}
 	ontouchend={endClick}
 	ontouchcancel={abortClick}
-	onmousedown={startClick}
-	onmouseup={endClick}
-	onmouseleave={abortClick}
+	ontouchmove={abortClick}
+	onclick={handleMouseClick}
 >
-	<div
-		class="row-start-1 col-start-1 col-span-full h-full bg-accent-600 transition-all duration-[50ms]"
-		style="width: calc({clickingProgress}*100%)"
-	></div>
+	{#if touchStartTime !== 0}
+		<ProductCellLongTouchIndicator
+			timeout={longPressTimeout}
+			onTimeout={() => {
+				endClick();
+				abortClick();
+			}}
+		/>
+	{/if}
 	<div
 		class="px-2 py-1 h-full items-center justify-center text-white row-start-1 col-start-1"
 		class:bg-accent-600={quantity > 0}
@@ -85,7 +89,7 @@
 	</div>
 	<div
 		class="grow text-left px-2 py-1 row-start-1 col-start-2 transition-colors duration-200"
-		class:text-white={clickingProgress > 0}
+		class:text-white={touchStartTime > 0}
 	>
 		<p>{product.name}</p>
 		<p class="text-xs">
