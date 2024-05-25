@@ -6,9 +6,9 @@
 
 	$effect(() => {
 		const canvas = document.getElementById('cash-share-link');
-		const url = import.meta.env.PROD ? window.location.href : 'http://192.168.1.10:5173/setup';
+		const url = import.meta.env.PROD ? window.location.origin : 'http://192.168.1.10:5173';
 		QRCode.toCanvas(canvas, `${url}?c=${encodedProducts}`, function (error) {
-			console.log('After QR code stuff, error is :', error);
+			console.error('Got an error while generating QR code', error);
 		});
 	});
 </script>
