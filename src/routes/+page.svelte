@@ -4,10 +4,12 @@
 	import { createOrdersStore } from '$lib/stores/orders.svelte.js';
 	import Button from '$lib/components/Button.svelte';
 	import MoreMenu from '$lib/components/MoreMenu.svelte';
+	import Checkout from '$lib/components/Checkout.svelte';
 
 	let productsStore = createProductsStore();
 	let ordersStore = createOrdersStore();
 	let returnMode = $state(false);
+	let showCheckout = $state(false);
 	/** @type Order */
 	let currentOrder = $state(
 		productsStore.products.reduce(
@@ -71,8 +73,24 @@
 			onResetOrder={resetOrder}
 			onToggleReturnMode={() => (returnMode = !returnMode)}
 		/>
-		<Button disabled={totalPrice === 0} variant="primary" onclick={saveOrder} class="grow">
+		<Button
+			disabled={totalPrice === 0}
+			variant="primary"
+			onclick={() => (showCheckout = true)}
+			class="grow"
+		>
 			{totalPrice.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
 		</Button>
 	</section>
+
+	{#if showCheckout}
+		<Checkout
+			totalToPay={totalPrice}
+			onAbortCheckout={() => (showCheckout = false)}
+			onCheckout={() => {
+				saveOrder();
+				showCheckout = false;
+			}}
+		/>
+	{/if}
 </div>
