@@ -8,6 +8,7 @@
 	let { product, quantity, onQuantityChange } = $props();
 	let touchStartTime = $state(0);
 	let touchEndTime = $state(0);
+	let isTouchEvent = $state(false);
 	/** @type HTMLInputElement */
 	let inputRef;
 	// Used for products that have a "per kilo" price
@@ -15,40 +16,41 @@
 
 	const longPressTimeout = 300;
 
-	function startClick() {
+	function withMouseOnly(cb) {
+		return function (/** @type Event */ e) {
+			if (!isTouchEvent) cb.call(this, e);
+		};
+	}
+
+	/** @param {Event} event */
+	function handleStart(event) {
+		isTouchEvent = event.type === 'touchstart';
 		touchStartTime = Date.now();
 	}
 
-	async function endClick() {
+	async function handleEnd() {
 		if (touchStartTime === 0) return;
 		touchEndTime = Date.now();
 		const touchDuration = touchEndTime - touchStartTime;
 
 		if (touchDuration < longPressTimeout) {
-			await handleMouseClick();
+			if (product.kilo) {
+				prompting = true;
+				await tick();
+				inputRef.focus();
+			} else {
+				onQuantityChange(quantity + 1);
+			}
 		} else {
 			onQuantityChange(0);
 		}
-	}
-
-	function abortClick() {
 		touchStartTime = 0;
 		touchEndTime = 0;
 	}
 
-	async function handleMouseClick() {
-		// Handler is fired after touch events, so we can reset and ignore here
-		if (touchStartTime !== 0) {
-			abortClick();
-			return;
-		}
-		if (product.kilo) {
-			prompting = true;
-			await tick();
-			inputRef.focus();
-		} else {
-			onQuantityChange(quantity + 1);
-		}
+	function handleMove() {
+		touchStartTime = 0;
+		touchEndTime = 0;
 	}
 
 	function endPrompt() {
@@ -63,20 +65,21 @@
 	class:border-accent-600={quantity > 0}
 	class:border-red-600={quantity < 0}
 	style="grid-template-columns: max-content 1fr;"
-	ontouchstart={startClick}
-	ontouchend={endClick}
-	ontouchcancel={abortClick}
-	ontouchmove={abortClick}
-	onclick={handleMouseClick}
+	ontouchstart={handleStart}
+	ontouchend={async () => {
+		handleEnd();
+		setTimeout(() => {
+			isTouchEvent = false;
+		}, 100);
+	}}
+	ontouchcancel={handleMove}
+	ontouchmove={handleMove}
+	onmousedown={withMouseOnly(handleStart)}
+	onmouseup={withMouseOnly(handleEnd)}
+	onmousemove={withMouseOnly(handleMove)}
 >
 	{#if touchStartTime !== 0}
-		<ProductCellLongTouchIndicator
-			timeout={longPressTimeout}
-			onTimeout={() => {
-				endClick();
-				abortClick();
-			}}
-		/>
+		<ProductCellLongTouchIndicator timeout={longPressTimeout} onTimeout={handleEnd} />
 	{/if}
 	<div
 		class="px-2 py-1 h-full items-center justify-center text-white row-start-1 col-start-1"
@@ -98,7 +101,7 @@
 	</div>
 
 	{#if product.kilo}
-		<div class="row-start-1 col-start-1 col-span-full px-2 py-1" class:hidden={!prompting}>
+		<div class="row-start-1 col-start-1 col-span-full px-2 py-1 h-full" class:hidden={!prompting}>
 			<Input
 				type="number"
 				step="0.001"

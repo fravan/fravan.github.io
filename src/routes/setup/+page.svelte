@@ -14,28 +14,30 @@
 	<meta name="description" content="Configuration | LCE" />
 </svelte:head>
 
-<section>
+<div class="h-full max-h-full flex flex-col">
 	{#if showingLink}
-		<div class="flex flex-col gap-2 items-center">
+		<section class="flex flex-col gap-2 items-center">
 			<p class="text-center">Partagez la caisse avec le QR code suivant</p>
 			<CashRegisterShareLink encodedProducts={store.encodedProducts} />
 			<Button variant="primary" onclick={() => (showingLink = false)}
 				>Revenir à la configuration</Button
 			>
-		</div>
+		</section>
 	{:else}
-		<table class="w-full">
-			<thead><ProductHeaderRow onAddClick={store.addNewProduct} /></thead>
-			<tbody>
-				{#each store.products as _, i}
-					<ProductRow bind:product={store.products[i]} onDelete={store.removeProduct} />
-				{/each}
-			</tbody>
-		</table>
+		<div class="grow overflow-y-auto -mr-2 pr-2">
+			<table class="w-full">
+				<thead><ProductHeaderRow onAddClick={store.addNewProduct} /></thead>
+				<tbody>
+					{#each store.products as _, i}
+						<ProductRow bind:product={store.products[i]} onDelete={store.removeProduct} />
+					{/each}
+				</tbody>
+			</table>
+		</div>
 
-		<div class="my-8 flex flex-col md:flex-row gap-2">
+		<div class="mt-4 mb-2 flex flex-col md:flex-row gap-2">
 			<Button variant="outline" onclick={store.clear}>Supprimer tous les produits</Button>
 			<Button variant="primary" onclick={() => (showingLink = true)}>Partager la caisse</Button>
 		</div>
 	{/if}
-</section>
+</div>
