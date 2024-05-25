@@ -37,19 +37,28 @@
 	<meta name="description" content="La Caisse Enregistreuse" />
 </svelte:head>
 
-<div class="h-full max-h-full flex flex-col">
+<div class="h-full max-h-full flex flex-col gap-2">
+	{#if returnMode}
+		<div class="px-2 py-1 text-center text-sm bg-red-200 text-red-800">Mode retour activé</div>
+	{/if}
+
 	<div class="grow overflow-y-auto -mr-2 pr-2">
 		<section class="grid grid-cols-2 items-start gap-2">
 			{#each productsStore.products as p}
 				<ProductCell
 					product={p}
 					quantity={currentOrder[p.name].quantity}
-					onQuantityChange={(q) => {
-						if (isNaN(q) || typeof q !== 'number') {
-							console.warn(`Received some strange quantity : ${q}`);
-							return;
+					onQuantityChange={(action) => {
+						if (action.type === 'increment') {
+							currentOrder[p.name].quantity += returnMode ? -1 : 1;
+						} else {
+							const amount = action.amount;
+							if (isNaN(amount) || typeof amount !== 'number') {
+								console.warn(`Received some strange quantity : ${amount}`);
+								return;
+							}
+							currentOrder[p.name].quantity = returnMode ? -amount : amount;
 						}
-						currentOrder[p.name].quantity = q;
 					}}
 				/>
 			{/each}
@@ -62,7 +71,6 @@
 			onResetOrder={resetOrder}
 			onToggleReturnMode={() => (returnMode = !returnMode)}
 		/>
-		<!-- <Button disabled={totalPrice === 0} variant="outline" onclick={resetOrder}>Annuler</Button> -->
 		<Button disabled={totalPrice === 0} variant="primary" onclick={saveOrder} class="grow">
 			{totalPrice.toLocaleString('fr-FR', { style: 'currency', currency: 'EUR' })}
 		</Button>

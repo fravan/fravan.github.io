@@ -4,7 +4,14 @@
 	import { withEnter } from '$lib/utils/eventHandlers';
 	import ProductCellLongTouchIndicator from './ProductCellLongTouchIndicator.svelte';
 
-	/** @type {{ product: Product, quantity: number, onQuantityChange: (q: number) => void  }} */
+	/** @typedef { {type: 'increment'} } IncrementAction */
+	/** @typedef { {type: 'set', amount: number} } SetAction */
+	/** @type {{ 
+    product: Product, 
+    quantity: number, 
+    onQuantityChange: (action: IncrementAction | SetAction) => void,
+  }} 
+  */
 	let { product, quantity, onQuantityChange } = $props();
 	let touchStartTime = $state(0);
 	let touchEndTime = $state(0);
@@ -39,10 +46,10 @@
 				await tick();
 				inputRef.focus();
 			} else {
-				onQuantityChange(quantity + 1);
+				onQuantityChange({ type: 'increment' });
 			}
 		} else {
-			onQuantityChange(0);
+			onQuantityChange({ type: 'set', amount: 0 });
 		}
 		touchStartTime = 0;
 		touchEndTime = 0;
@@ -109,7 +116,7 @@
 				value={quantity}
 				bind:ref={inputRef}
 				onchange={(/** @type Event & { target: HTMLInputElement } */ e) =>
-					onQuantityChange(Number(e.target.value))}
+					onQuantityChange({ type: 'set', amount: Number(e.target.value) })}
 				onblur={endPrompt}
 				onkeyup={withEnter(endPrompt)}
 			/>
