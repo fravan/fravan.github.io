@@ -77,7 +77,7 @@
 		handleEnd();
 		setTimeout(() => {
 			isTouchEvent = false;
-		}, 100);
+		}, 300);
 	}}
 	ontouchcancel={handleMove}
 	ontouchmove={handleMove}
